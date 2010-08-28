@@ -196,4 +196,9 @@ define('MOBILE_MODE', $mobile_mode);
 
 
 // Configuration of the DB
-DB::config(Config::$DB);
+if(isset(Config::$DB))
+	DB::config(Config::$DB);
+
+// Configuration of the cache
+if(isset(Config::$CACHE))
+	Cache::config(Config::$CACHE);

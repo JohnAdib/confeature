@@ -33,7 +33,21 @@ final class Config extends ConfigAbstract {
 	
 	// Name of the session
 	const SESS_ID		= 'PHPSESSID';
-
+	
+	// Cache
+	public static $CACHE	= array(
+		'driver'	=> 'apc',
+		'prefix'	=> 'example_'
+	);
+	/*
+	public static $CACHE	= array(
+		'driver'	=> 'memcache',
+		'host'		=> 'localhost',
+		'port'		=> 11211,
+		'prefix'	=> 'example_'
+	);
+	*/
+	
 	// Contact name and mail
 	const CONTACT_NAME	= 'Example';
 	const CONTACT_MAIL	= 'contact@example.com';
