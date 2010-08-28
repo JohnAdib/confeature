@@ -1,0 +1,15 @@
+<public:component>
+ <public:attach event="onload" for="element" />
+ <script type="text/javascript">
+	var transparentImage = "/images/transparent.gif";
+	function pngHack(){
+		var src = element.src;
+		if (src.indexOf(".png")==-1 || element.width==0) return;
+		element.style.width = element.width+"px";
+		element.style.height = element.height+"px";
+		element.src = transparentImage;
+		element.runtimeStyle.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+src+"',sizingMethod='scale')";
+	}
+	pngHack();
+ </script>
+</public:component>

@@ -1,0 +1,12 @@
+
+LANGUAGE_NAME
+	English
+
+FILE_SIZE_BYTES
+	{size} bytes
+FILE_SIZE_KB
+	{size} KB
+FILE_SIZE_MB
+	{size} MB
+FILE_SIZE_GB
+	{size} GB

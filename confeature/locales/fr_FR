@@ -1,0 +1,12 @@
+
+LANGUAGE_NAME
+	Français
+
+FILE_SIZE_BYTES
+	{size} octets
+FILE_SIZE_KB
+	{size} Ko
+FILE_SIZE_MB
+	{size} Mo
+FILE_SIZE_GB
+	{size} Go

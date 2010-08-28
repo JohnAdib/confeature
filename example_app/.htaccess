@@ -1,0 +1,122 @@
+# Apache configuration file
+# httpd.apache.org/docs/2.2/mod/quickreference.html
+
+# Force the latest IE version, in various cases when it may fall back to IE7 mode
+#  github.com/rails/rails/commit/123eb25#commitcomment-118920
+# Use ChromeFrame if it's installed for a better experience for the poor IE folk
+<IfModule mod_setenvif.c>
+  <IfModule mod_headers.c>
+    BrowserMatch MSIE ie
+    Header set X-UA-Compatible "IE=Edge,chrome=1" env=ie
+  </IfModule>
+</IfModule>
+
+
+# video
+AddType video/ogg  ogg ogv
+AddType video/mp4  mp4
+AddType video/webm webm
+
+# Proper svg serving. Required for svg webfonts on iPad
+#   twitter.com/FontSquirrel/status/14855840545
+AddType image/svg+xml                 svg svgz 
+
+# webfonts
+AddType application/vnd.ms-fontobject eot
+AddType font/ttf                      ttf
+AddType font/otf                      otf
+AddType font/x-woff                   woff
+
+AddType text/cache-manifest           manifest
+
+
+# gzip compression.
+<IfModule mod_deflate.c>
+
+# html, xml, css, and js:
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/x-javascript text/javascript application/javascript application/json 
+
+# webfonts and svg:
+  <FilesMatch "\.(ttf|otf|eot|svg)$" >
+    SetOutputFilter DEFLATE
+  </FilesMatch>
+</IfModule>
+
+
+
+# these are pretty far-future expires headers
+# they assume you control versioning with cachebusting query params like
+#   <script src="application.js?20100608">
+# additionally, consider that outdated proxies may miscache 
+#   www.stevesouders.com/blog/2008/08/23/revving-filenames-dont-use-querystring/
+
+# if you don't use filenames to version, lower the css and js to something like
+#   "access plus 1 week" or so
+
+<IfModule mod_expires.c>
+  Header set cache-control: public
+  ExpiresActive on
+
+# Perhaps better to whitelist expires rules? Perhaps.
+  ExpiresDefault                          "access plus 1 month"
+
+# cache.manifest needs re-reqeusts in FF 3.6 (thx Remy ~Introducing HTML5)
+  ExpiresByType text/cache-manifest       "access plus 0 seconds"
+
+# your document html 
+  ExpiresByType text/html                  "access"
+
+# rss feed
+  ExpiresByType application/rss+xml       "access plus 1 hour"
+
+# favicon (cannot be renamed)
+  ExpiresByType image/vnd.microsoft.icon  "access plus 1 week" 
+
+# media: images, video, audio
+  ExpiresByType image/png                 "access plus 1 month"
+  ExpiresByType image/jpg                 "access plus 1 month"
+  ExpiresByType image/jpeg                "access plus 1 month"
+  ExpiresByType image/x-icon              "access plus 1 year"
+  ExpiresByType video/ogg                 "access plus 1 month"
+  ExpiresByType audio/ogg                 "access plus 1 month"
+  ExpiresByType video/mp4                 "access plus 1 month"
+  
+# webfonts
+  ExpiresByType font/ttf                  "access plus 1 month"
+  ExpiresByType font/woff                 "access plus 1 month"
+  ExpiresByType image/svg+xml             "access plus 1 month"
+  
+# css and javascript
+  ExpiresByType text/css                  "access plus 1 month"
+  ExpiresByType application/javascript    "access plus 1 month"
+  ExpiresByType text/javascript           "access plus 1 month"
+</IfModule>
+
+
+# Since we're sending far-future expires, we don't need ETags for
+# static content.
+#   developer.yahoo.com/performance/rules.html#etags
+FileETag None
+
+
+
+# Default config for PHP
+php_flag register_globals off
+php_flag magic_quotes_gpc off
+php_flag magic_quotes_runtime off
+
+DirectoryIndex index.html index.php
+
+# use utf-8 encoding for anything served text/plain or text/html
+AddDefaultCharset utf-8
+# force utf-8 for a number of file formats
+AddCharset UTF-8 .html .htm .txt .css .js .xml .json .rss
+
+
+
+RewriteEngine On
+
+# Si le fichier demandé n'existe pas, on utilise index.php qui va gérer la réécriture d'URL
+RewriteCond %{REQUEST_URI}	^/(classes|config|controllers|locales|models|views)/	[OR]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^.*				index.php			[QSA,L]
