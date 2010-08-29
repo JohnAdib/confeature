@@ -133,7 +133,7 @@ class File {
 			// Single file
 			}else{
 				$path = DATA_DIR.Config::DIR_DATA_TMP.$_FILES[$name]['name'];
-				if(move_uploaded_file($_FILES[$name]['tmp_name'], BASE_DIR.$path)){
+				if(move_uploaded_file($_FILES[$name]['tmp_name'], $path)){
 					@chmod($path, 0777);
 					return $path;
 				}
