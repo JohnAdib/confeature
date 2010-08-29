@@ -415,6 +415,8 @@ class DB_Query {
 	public function select($id=null){
 		if(isset($id) && (is_int($id) || is_string($id)))
 			$this->where['id'] = $id;
+		if(count($this->fields) == 0)
+			$this->fields[] = '*';
 		
 		$results = DB::select('
 			SELECT '.implode(', ', $this->fields).'
