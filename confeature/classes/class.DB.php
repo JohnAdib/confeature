@@ -424,7 +424,7 @@ class DB_Query {
 			'.(count($this->where)==0 ? '' : 'WHERE '.DB::computeConditions($this->where)).'
 			LIMIT '.$this->offset.', '.$this->limit.'
 		');
-		return isset($results[0]) ? $results[0] : false;
+		return $results;
 	}
 	
 	/**
