@@ -227,4 +227,38 @@ class Image {
 		}
 	}
 	
+	
+	/**
+	 * Returns the width of the image
+	 *
+	 * @return int
+	 */
+	public function getWidth(){
+		if(!$this->loaded)
+			throw new Exception('No image loaded');
+		return $this->width;
+	}
+	
+	/**
+	 * Returns the height of the image
+	 *
+	 * @return int
+	 */
+	public function getHeight(){
+		if(!$this->loaded)
+			throw new Exception('No image loaded');
+		return $this->height;
+	}
+	
+	/**
+	 * Returns the type of the image, relative to IMAGETYPE_* constants
+	 *
+	 * @return int
+	 */
+	public function getType(){
+		if(!$this->loaded)
+			throw new Exception('No image loaded');
+		return $this->type;
+	}
+	
 }

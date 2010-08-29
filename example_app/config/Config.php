@@ -1,5 +1,7 @@
 <?php
-// General configuration
+/**
+ * General configuration
+ */
 
 final class Config extends ConfigAbstract {
 	
