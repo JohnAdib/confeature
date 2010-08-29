@@ -40,7 +40,7 @@ foreach($cssFiles as $cssFile){
 		</script>
 		
 	</head>
-	<body class="<?php echo 'body_'.$controllerName .' '. 'body_'.$controllerName.'_'.$actionName; ?>">
+	<body>
 		
 		<div id="container">
 			<header>
