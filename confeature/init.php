@@ -1,6 +1,15 @@
 <?php
 define('START_TIME', microtime(true));
 
+/* Cron mode */
+if(defined('CRON_MODE') && CRON_MODE){
+	$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+	$_SERVER['HTTP_USER_AGENT'] = '';
+	$_SERVER['REQUEST_URI'] = '';
+	$_SERVER['HTTP_ACCEPT'] = '';
+}
+
+
 /**
  * Magic function of class autoloading
  *
