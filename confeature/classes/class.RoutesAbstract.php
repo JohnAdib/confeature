@@ -14,6 +14,8 @@ abstract class RoutesAbstract {
 	 * @return string	Page address
 	 */
 	public static function getPage($route, $attrs=array()){
+		if(!isset($attrs) || !is_array($attrs))
+			$attrs = array();
 		
 		if(isset(Routes::$routes[$route])){
 			if(isset(Routes::$routes[$route]['extend'])){
@@ -103,6 +105,42 @@ abstract class RoutesAbstract {
 		// Rendering the view
 		$controller->render();
 		
+	}
+	
+	
+	/**
+	 * Redirects to a page by route name and parameters
+	 * 
+	 * @param string $route		Name of the route
+	 * @param array	 $attrs		Optionnals parameters (associative array)
+	 * @param int $http_status	HTTP Status (200, 301, ...)
+	 */
+	public static function redirect($route, $attrs=array(), $http_status=200){
+		switch($http_status){
+			case 300:
+				header('HTTP/1.1 300 Multiple Choices');
+				break;
+			case 301:
+				header('HTTP/1.1 301 Moved Permanently');
+				break;
+			case 302:
+				header('HTTP/1.1 302 Found');
+				break;
+			case 303:
+				header('HTTP/1.1 303 See Other');
+				break;
+			case 304:
+				header('HTTP/1.1 304 Not Modified');
+				break;
+			case 305:
+				header('HTTP/1.1 305 Use Proxy');
+				break;
+			case 307:
+				header('HTTP/1.1 307 Temporary Redirect');
+				break;
+		}
+		header('Location: '.Config::URL_ROOT.self::getPage($route, $attrs));
+		exit;
 	}
 	
 }
