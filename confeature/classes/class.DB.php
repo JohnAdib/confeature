@@ -329,7 +329,7 @@ class DB_Query {
 		$fields = func_get_args();
 		foreach($fields as $field){
 			if(is_array($fields))
-				$this->fields($field);
+				$this->fields = array_merge($this->fields, $fields);
 			else if(is_string($field))
 				$this->fields[] = $field;
 		}
@@ -417,6 +417,7 @@ class DB_Query {
 			$this->where['id'] = $id;
 		if(count($this->fields) == 0)
 			$this->fields[] = '*';
+		$this->fields = array_unique($this->fields);
 		
 		$results = DB::select('
 			SELECT '.implode(', ', $this->fields).'
