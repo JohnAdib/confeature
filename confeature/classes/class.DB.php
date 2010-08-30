@@ -293,19 +293,52 @@ class DB {
 
 class DB_Query {
 	
-	// SQL table
+	/**
+	 * SQL table
+	 * @var string
+	 */
 	private $table;
-	// Fields to be retrieved
+	
+	/**
+	 * Fields to be retrieved
+	 * @var array
+	 */
 	private $fields = array();
-	// Where conditions
+	
+	/**
+	 * Where conditions
+	 * @var array
+	 */
 	private $where = array();
-	// Number of lines to be returned
+	
+	/**
+	 * Fields of the ORDER BY instruction
+	 * @var array
+	 */
+	private $order = array();
+	
+	/**
+	 * Number of lines to be returned
+	 * @var int
+	 */
 	private $limit = 1;
-	// Number of lines to be skipped
+	
+	/**
+	 * Number of lines to be skipped
+	 * @var int
+	 */
 	private $offset = 0;
-	// Associative array of fields-values to add / modify
+	
+	/**
+	 * Associative array of fields-values to add / modify
+	 * @var array
+	 */
 	private $set = array();
-	// Allows modification / deletion of data without condition if true
+	
+	/**
+	 * Allows modification / deletion of data without condition if true
+	 * @var bool
+	 */
 	private $force = false;
 	
 	
@@ -352,6 +385,23 @@ class DB_Query {
 				else
 					$this->where[] = $value;
 			}
+		}
+		return $this;
+	}
+	
+	/**
+	 * Set the fields which will be used in the ORDER BY instruction
+	 *
+	 * @param string|array $field,...	Fields' names / pairs field-direction
+	 * @return DB_Query	This instance
+	 */
+	public function order(){
+		$fields = func_get_args();
+		foreach($fields as $field){
+			if(is_string($field))
+				$this->order[] = $field;
+			else if(is_array($field) && isset($field[0]) && is_string($field[0]))
+				$this->order[] = $field[0].' '.(isset($field[1]) && strtoupper($field[1])=='DESC' ? 'DESC' : 'ASC');
 		}
 		return $this;
 	}
@@ -423,6 +473,7 @@ class DB_Query {
 			SELECT '.implode(', ', $this->fields).'
 			FROM '.$this->table.'
 			'.(count($this->where)==0 ? '' : 'WHERE '.DB::computeConditions($this->where)).'
+			'.(count($this->order)==0 ? '' : 'ORDER BY '.implode(', ', $this->order)).'
 			LIMIT '.$this->offset.', '.$this->limit.'
 		');
 		return $results;
