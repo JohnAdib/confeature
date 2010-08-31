@@ -49,7 +49,7 @@ class L10N {
 	 * Example of configuration text :
 	 *			# Comment here with a sharp
 	 *			FIRST_VAR
-	 *				Content of the var
+	 *				Hello {username}
 	 *			SECOND_VAR	# Comment after a variable name
 	 *				Content of
 	 *				the var
@@ -110,11 +110,20 @@ class L10N {
  * Gettext function
  *
  * @param string $var	Name of the variable
+ * @param array $params	Associative array of strings to be replaced in the text
  * @return mixed	Value of the variable
  */
-function __($var){
-	if(isset(L10N::$translations[$var]))
-		return L10N::$translations[$var];
-	else
+function __($var, $params=null){
+	if(isset(L10N::$translations[$var])){
+		if(isset($params) && is_array($params)){
+			$text = L10N::$translations[$var];
+			foreach($params as $key => $value)
+				$text = str_replace('{'.trim($key, '{}').'}', $value, $text);
+			return $text;
+		}else{
+			return L10N::$translations[$var];
+		}
+	}else{
 		return $var;
+	}
 }
