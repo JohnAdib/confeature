@@ -144,26 +144,34 @@ class DB {
 	
 	
 	/**
-	 * Executes a query
+	 * Executes a query and returns the PDOStatement
 	 *
 	 * @param string $query	SQL query
-	 * @return int	Number of modified rows
+	 * @param array $params	Parameters (optionnal)
+	 * @return PDOStatement
 	 */
-	public static function execute($query){
+	public static function execute($query, $params=array()){
 		self::_init();
 		try{
 			if(Config::DEBUG)
 				$time = microtime(true);
 			
-			// Execution of the query
-			$return = self::$conn->exec($query);
+			// Preparation of the query
+			$stmt = self::$conn->prepare($query);
+			
 			// Error ?
-			if($return===false)
+			if($stmt===false)
+				self::_checkError();
+			
+			// Execution of the query
+			if(!$stmt->execute($params))
 				self::_checkError();
 			
 			if(Config::DEBUG)
 				self::_logQuery($query, microtime(true) - $time);
-			return $return;
+			
+			return $stmt;
+			
 		}catch(Exception $e){
 			self::_logError($e, $query);
 			throw $e;
@@ -175,23 +183,12 @@ class DB {
 	 * Executes a SELECT query and returns an associative array of the results
 	 *
 	 * @param string $query	SQL query
+	 * @param array $params	Parameters (optionnal)
 	 * @return array	Results
 	 */
-	public static function select($query){
-		self::_init();
+	public static function select($query, $params=array()){
+		$stmt = self::execute($query, $params);
 		try{
-			if(Config::DEBUG)
-				$time = microtime(true);
-			
-			// Execution of the query
-			$stmt = self::$conn->query($query);
-			// Error ?
-			if($stmt===false)
-				self::_checkError();
-			
-			if(Config::DEBUG)
-				self::_logQuery($query, microtime(true) - $time);
-			
 			return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			
 		}catch(Exception $e){
