@@ -321,7 +321,7 @@ class DB_Query {
 	 * Number of lines to be returned
 	 * @var int
 	 */
-	private $limit = 1;
+	private $limit = 0;
 	
 	/**
 	 * Number of lines to be skipped
@@ -463,8 +463,10 @@ class DB_Query {
 	 * @return array	Results
 	 */
 	public function select($id=null){
-		if(isset($id) && (is_int($id) || is_string($id)))
+		if(isset($id) && (is_int($id) || is_string($id))){
 			$this->where['id'] = $id;
+			$this->limit = 1;
+		}
 		if(count($this->fields) == 0)
 			$this->fields[] = '*';
 		$this->fields = array_unique($this->fields);
@@ -474,7 +476,7 @@ class DB_Query {
 			FROM '.$this->table.'
 			'.(count($this->where)==0 ? '' : 'WHERE '.DB::computeConditions($this->where)).'
 			'.(count($this->order)==0 ? '' : 'ORDER BY '.implode(', ', $this->order)).'
-			LIMIT '.$this->offset.', '.$this->limit.'
+			'.($this->limit != 0 ? 'LIMIT '.$this->offset.', '.$this->limit : '').'
 		');
 		return $results;
 	}
@@ -500,8 +502,10 @@ class DB_Query {
 	 * @return int	Number of affected rows
 	 */
 	public function update($id=null){
-		if(isset($id) && (is_int($id) || is_string($id)))
+		if(isset($id) && (is_int($id) || is_string($id))){
 			$this->where['id'] = $id;
+			$this->limit = 1;
+		}
 		
 		if(count($this->where)==0 && !$this->force)
 			throw new Exception('You must use "force" method to update without condition');
@@ -514,7 +518,7 @@ class DB_Query {
 			UPDATE '.$this->table.'
 			SET '.implode(', ', $set).'
 			'.(count($this->where)==0 ? '' : 'WHERE '.DB::computeConditions($this->where)).'
-			LIMIT '.$this->limit.'
+			'.($this->limit != 0 ? 'LIMIT '.$this->limit : '').'
 		');
 	}
 	
@@ -525,8 +529,10 @@ class DB_Query {
 	 * @return int	Number of affected rows
 	 */
 	public function delete($id=null){
-		if(isset($id) && (is_int($id) || is_string($id)))
+		if(isset($id) && (is_int($id) || is_string($id))){
 			$this->where['id'] = $id;
+			$this->limit = 1;
+		}
 		
 		if(count($this->where)==0 && !$this->force)
 			throw new Exception('You must use "force" method to delete without condition');
@@ -534,7 +540,7 @@ class DB_Query {
 		return DB::execute('
 			DELETE FROM '.$this->table.'
 			'.(count($this->where)==0 ? '' : 'WHERE '.DB::computeConditions($this->where)).'
-			LIMIT '.$this->limit.'
+			'.($this->limit != 0 ? 'LIMIT '.$this->limit : '').'
 		');
 	}
 	
