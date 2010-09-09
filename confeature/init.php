@@ -120,7 +120,7 @@ else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']) && Validation::isIP($_SERVER['HT
 else if(Validation::isIP($_SERVER['REMOTE_ADDR']) && !Validation::isLocalIP($_SERVER['REMOTE_ADDR']))
 	define('IP', $_SERVER['REMOTE_ADDR']);
 else
-	define('IP', '');
+	define('IP', '0.0.0.0');
 
 
 // Security : The session is wiped if the user-agent change

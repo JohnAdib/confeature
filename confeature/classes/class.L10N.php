@@ -111,7 +111,7 @@ class L10N {
  *
  * @param string $var	Name of the variable
  * @param array $params	Associative array of strings to be replaced in the text
- * @return mixed	Value of the variable
+ * @return string	Value of the variable
  */
 function __($var, $params=null){
 	if(isset(L10N::$translations[$var])){
