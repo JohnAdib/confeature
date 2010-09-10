@@ -22,6 +22,16 @@ class L10N {
 			throw new Exception('Wrong language format');
 		$language_base = $match[0];
 		
+		// Locale of PHP
+		setlocale(LC_ALL, $language.'.UTF-8', $language_base.'.UTF-8', 'en_EN.UTF-8');
+		
+		// Retrieving the translations
+		$last_modif = max(filemtime(CF_DIR.'locales/'.$language), filemtime(APP_DIR.'locales/'.$language));
+		self::$translations = Cache::read('translations_'.$last_modif);
+		if(self::$translations != false)
+			return;
+		
+		// If the translations cache doesn't exist, we create it
 		$vars = '';
 		try {
 			$vars .= File::read(CF_DIR.'locales/'.$language);
@@ -38,8 +48,8 @@ class L10N {
 		// Extraction of the variables and storage in the class
 		self::$translations = self::parse($vars);
 		
-		// Locale of PHP
-		setlocale(LC_ALL, $language.'.UTF-8', $language_base.'.UTF-8', 'en_EN.UTF-8');
+		Cache::write('translations_'.$last_modif, self::$translations, 3600*24);
+		echo 'write cache';
 	}
 	
 	
