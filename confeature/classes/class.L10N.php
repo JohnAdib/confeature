@@ -22,6 +22,16 @@ class L10N {
 			throw new Exception('Wrong language format');
 		$language_base = $match[0];
 		
+		// Locale of PHP
+		setlocale(LC_ALL, $language.'.UTF-8', $language_base.'.UTF-8', 'en_EN.UTF-8');
+		
+		// Retrieving the translations
+		$last_modif = max(filemtime(CF_DIR.'locales/'.$language), filemtime(APP_DIR.'locales/'.$language));
+		self::$translations = Cache::read('translations_'.$last_modif);
+		if(self::$translations != false)
+			return;
+		
+		// If the translations cache doesn't exist, we create it
 		$vars = '';
 		try {
 			$vars .= File::read(CF_DIR.'locales/'.$language);
@@ -38,8 +48,8 @@ class L10N {
 		// Extraction of the variables and storage in the class
 		self::$translations = self::parse($vars);
 		
-		// Locale of PHP
-		setlocale(LC_ALL, $language.'.UTF-8', $language_base.'.UTF-8', 'en_EN.UTF-8');
+		Cache::write('translations_'.$last_modif, self::$translations, 3600*24);
+		echo 'write cache';
 	}
 	
 	
@@ -49,7 +59,7 @@ class L10N {
 	 * Example of configuration text :
 	 *			# Comment here with a sharp
 	 *			FIRST_VAR
-	 *				Content of the var
+	 *				Hello {username}
 	 *			SECOND_VAR	# Comment after a variable name
 	 *				Content of
 	 *				the var
@@ -110,11 +120,20 @@ class L10N {
  * Gettext function
  *
  * @param string $var	Name of the variable
- * @return mixed	Value of the variable
+ * @param array $params	Associative array of strings to be replaced in the text
+ * @return string	Value of the variable
  */
-function __($var){
-	if(isset(L10N::$translations[$var]))
-		return L10N::$translations[$var];
-	else
+function __($var, $params=null){
+	if(isset(L10N::$translations[$var])){
+		if(isset($params) && is_array($params)){
+			$text = L10N::$translations[$var];
+			foreach($params as $key => $value)
+				$text = str_replace('{'.trim($key, '{}').'}', $value, $text);
+			return $text;
+		}else{
+			return L10N::$translations[$var];
+		}
+	}else{
 		return $var;
+	}
 }

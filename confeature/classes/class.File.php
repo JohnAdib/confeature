@@ -73,6 +73,37 @@ class File {
 	}
 	
 	/**
+	 * Copies a file or a directory
+	 *
+	 * @param string $name		Name of the file / dir
+	 * @param string $copyname	Name of the copy of the file / dir
+	 * @return bool	True on success, false on failure
+	 */
+	public static function copy($name, $copyname){
+		// If it's a dir...
+		if(is_dir($name)){
+			if(!self::makeDir($copyname))
+				return false;
+			$handle = opendir($name); 
+			while($filename = readdir($handle)){
+				if($filename != '.' && $filename != '..'){
+					if(!self::copy($name.'/'.$filename, $copyname.'/'.$filename)){
+						self::delete($copyname);
+						return false;
+					}
+				}
+			}
+			closedir($handle);
+			return true;
+		
+		// If it's a file
+		}else if(file_exists($name)){
+			return copy($name, $copyname);
+		}
+		return false;
+	}
+	
+	/**
 	 * Checks whether a file or directory exists
 	 *
 	 * @param string $path		Name of the file / dir

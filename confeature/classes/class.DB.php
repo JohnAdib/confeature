@@ -144,26 +144,34 @@ class DB {
 	
 	
 	/**
-	 * Executes a query
+	 * Executes a query and returns the PDOStatement
 	 *
 	 * @param string $query	SQL query
-	 * @return int	Number of modified rows
+	 * @param array $params	Parameters (optionnal)
+	 * @return PDOStatement
 	 */
-	public static function execute($query){
+	public static function execute($query, $params=array()){
 		self::_init();
 		try{
 			if(Config::DEBUG)
 				$time = microtime(true);
 			
-			// Execution of the query
-			$return = self::$conn->exec($query);
+			// Preparation of the query
+			$stmt = self::$conn->prepare($query);
+			
 			// Error ?
-			if($return===false)
+			if($stmt===false)
+				self::_checkError();
+			
+			// Execution of the query
+			if(!$stmt->execute($params))
 				self::_checkError();
 			
 			if(Config::DEBUG)
 				self::_logQuery($query, microtime(true) - $time);
-			return $return;
+			
+			return $stmt;
+			
 		}catch(Exception $e){
 			self::_logError($e, $query);
 			throw $e;
@@ -175,23 +183,12 @@ class DB {
 	 * Executes a SELECT query and returns an associative array of the results
 	 *
 	 * @param string $query	SQL query
+	 * @param array $params	Parameters (optionnal)
 	 * @return array	Results
 	 */
-	public static function select($query){
-		self::_init();
+	public static function select($query, $params=array()){
+		$stmt = self::execute($query, $params);
 		try{
-			if(Config::DEBUG)
-				$time = microtime(true);
-			
-			// Execution of the query
-			$stmt = self::$conn->query($query);
-			// Error ?
-			if($stmt===false)
-				self::_checkError();
-			
-			if(Config::DEBUG)
-				self::_logQuery($query, microtime(true) - $time);
-			
 			return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			
 		}catch(Exception $e){
@@ -293,19 +290,52 @@ class DB {
 
 class DB_Query {
 	
-	// SQL table
+	/**
+	 * SQL table
+	 * @var string
+	 */
 	private $table;
-	// Fields to be retrieved
+	
+	/**
+	 * Fields to be retrieved
+	 * @var array
+	 */
 	private $fields = array();
-	// Where conditions
+	
+	/**
+	 * Where conditions
+	 * @var array
+	 */
 	private $where = array();
-	// Number of lines to be returned
-	private $limit = 1;
-	// Number of lines to be skipped
+	
+	/**
+	 * Fields of the ORDER BY instruction
+	 * @var array
+	 */
+	private $order = array();
+	
+	/**
+	 * Number of lines to be returned
+	 * @var int
+	 */
+	private $limit = 0;
+	
+	/**
+	 * Number of lines to be skipped
+	 * @var int
+	 */
 	private $offset = 0;
-	// Associative array of fields-values to add / modify
+	
+	/**
+	 * Associative array of fields-values to add / modify
+	 * @var array
+	 */
 	private $set = array();
-	// Allows modification / deletion of data without condition if true
+	
+	/**
+	 * Allows modification / deletion of data without condition if true
+	 * @var bool
+	 */
 	private $force = false;
 	
 	
@@ -352,6 +382,23 @@ class DB_Query {
 				else
 					$this->where[] = $value;
 			}
+		}
+		return $this;
+	}
+	
+	/**
+	 * Set the fields which will be used in the ORDER BY instruction
+	 *
+	 * @param string|array $field,...	Fields' names / pairs field-direction
+	 * @return DB_Query	This instance
+	 */
+	public function order(){
+		$fields = func_get_args();
+		foreach($fields as $field){
+			if(is_string($field))
+				$this->order[] = $field;
+			else if(is_array($field) && isset($field[0]) && is_string($field[0]))
+				$this->order[] = $field[0].' '.(isset($field[1]) && strtoupper($field[1])=='DESC' ? 'DESC' : 'ASC');
 		}
 		return $this;
 	}
@@ -413,8 +460,10 @@ class DB_Query {
 	 * @return array	Results
 	 */
 	public function select($id=null){
-		if(isset($id) && (is_int($id) || is_string($id)))
+		if(isset($id) && (is_int($id) || is_string($id))){
 			$this->where['id'] = $id;
+			$this->limit = 1;
+		}
 		if(count($this->fields) == 0)
 			$this->fields[] = '*';
 		$this->fields = array_unique($this->fields);
@@ -423,7 +472,8 @@ class DB_Query {
 			SELECT '.implode(', ', $this->fields).'
 			FROM '.$this->table.'
 			'.(count($this->where)==0 ? '' : 'WHERE '.DB::computeConditions($this->where)).'
-			LIMIT '.$this->offset.', '.$this->limit.'
+			'.(count($this->order)==0 ? '' : 'ORDER BY '.implode(', ', $this->order)).'
+			'.($this->limit != 0 ? 'LIMIT '.$this->offset.', '.$this->limit : '').'
 		');
 		return $results;
 	}
@@ -449,8 +499,10 @@ class DB_Query {
 	 * @return int	Number of affected rows
 	 */
 	public function update($id=null){
-		if(isset($id) && (is_int($id) || is_string($id)))
+		if(isset($id) && (is_int($id) || is_string($id))){
 			$this->where['id'] = $id;
+			$this->limit = 1;
+		}
 		
 		if(count($this->where)==0 && !$this->force)
 			throw new Exception('You must use "force" method to update without condition');
@@ -463,7 +515,7 @@ class DB_Query {
 			UPDATE '.$this->table.'
 			SET '.implode(', ', $set).'
 			'.(count($this->where)==0 ? '' : 'WHERE '.DB::computeConditions($this->where)).'
-			LIMIT '.$this->limit.'
+			'.($this->limit != 0 ? 'LIMIT '.$this->limit : '').'
 		');
 	}
 	
@@ -474,8 +526,10 @@ class DB_Query {
 	 * @return int	Number of affected rows
 	 */
 	public function delete($id=null){
-		if(isset($id) && (is_int($id) || is_string($id)))
+		if(isset($id) && (is_int($id) || is_string($id))){
 			$this->where['id'] = $id;
+			$this->limit = 1;
+		}
 		
 		if(count($this->where)==0 && !$this->force)
 			throw new Exception('You must use "force" method to delete without condition');
@@ -483,7 +537,7 @@ class DB_Query {
 		return DB::execute('
 			DELETE FROM '.$this->table.'
 			'.(count($this->where)==0 ? '' : 'WHERE '.DB::computeConditions($this->where)).'
-			LIMIT '.$this->limit.'
+			'.($this->limit != 0 ? 'LIMIT '.$this->limit : '').'
 		');
 	}
 	

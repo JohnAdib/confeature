@@ -3,6 +3,7 @@ define('START_TIME', microtime(true));
 
 /* Cron mode */
 if(defined('CRON_MODE') && CRON_MODE){
+	set_time_limit(0);
 	$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 	$_SERVER['HTTP_USER_AGENT'] = '';
 	$_SERVER['REQUEST_URI'] = '';
@@ -119,7 +120,7 @@ else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']) && Validation::isIP($_SERVER['HT
 else if(Validation::isIP($_SERVER['REMOTE_ADDR']) && !Validation::isLocalIP($_SERVER['REMOTE_ADDR']))
 	define('IP', $_SERVER['REMOTE_ADDR']);
 else
-	define('IP', '');
+	define('IP', '0.0.0.0');
 
 
 // Security : The session is wiped if the user-agent change
