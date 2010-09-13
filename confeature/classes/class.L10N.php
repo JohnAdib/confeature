@@ -49,7 +49,6 @@ class L10N {
 		self::$translations = self::parse($vars);
 		
 		Cache::write('translations_'.$last_modif, self::$translations, 3600*24);
-		echo 'write cache';
 	}
 	
 	
