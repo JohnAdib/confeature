@@ -9,11 +9,12 @@ Confeature is a smart and lightweight PHP framework.
 It lets you free to use the libraries of your choice, and offers you a
 structure and helpers to build a website easily.
 
-Somes features :
+Some features :
  * MVC architecture
  * URL rewriting
  * DB connection with helpers
  * Internationalization
+ * Cache (using Memcached or APC)
  * Cookies and Sessions classes
  * Images manipulation
  * Log files
