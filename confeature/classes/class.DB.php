@@ -398,7 +398,7 @@ class DB_Query {
 			if(is_string($field))
 				$this->order[] = $field;
 			else if(is_array($field) && isset($field[0]) && is_string($field[0]))
-				$this->order[] = $field[0].' '.(isset($field[1]) && strtoupper($field[1])=='DESC' ? 'DESC' : 'ASC');
+				$this->order[] = '`'.$field[0].'` '.(isset($field[1]) && strtoupper($field[1])=='DESC' ? 'DESC' : 'ASC');
 		}
 		return $this;
 	}
