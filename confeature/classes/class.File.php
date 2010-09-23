@@ -224,9 +224,9 @@ class File {
 	 */
 	public static function humanReadableSize($size, $accuracy=0){
 		if($size>1024*1024*1024)
-			return round($size/1024*1024*1024, $accuracy).' Go';
+			return round($size/(1024*1024*1024), $accuracy).' Go';
 		if($size>1024*1024)
-			return round($size/1024*1024, $accuracy).' Mo';
+			return round($size/(1024*1024), $accuracy).' Mo';
 		if($size>1024)
 			return round($size/1024, $accuracy).' Ko';
 		return $size.' octets';
