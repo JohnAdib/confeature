@@ -261,4 +261,16 @@ class Image {
 		return $this->type;
 	}
 	
+	/**
+	 * Change the type of the image (using IMAGETYPE_* constants)
+	 *
+	 * @param int $type		IMAGETYPE_JPEG, IMAGETYPE_GIF, or IMAGETYPE_PNG
+	 */
+	public function setType($type){
+		if(!$this->loaded)
+			throw new Exception('No image loaded');
+		if(in_array($type, array(IMAGETYPE_JPEG, IMAGETYPE_GIF, IMAGETYPE_PNG)))
+			$this->type = $type;
+	}
+	
 }
