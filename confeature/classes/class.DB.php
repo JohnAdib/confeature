@@ -136,10 +136,18 @@ class DB {
 	
 	/**
 	 * Check if an error occured
+	 *
+	 * @param PDOStatement $stmt	Concerned PDO statement
 	 */
-	private static function _checkError(){
+	private static function _checkError($stmt=null){
+		if(isset($stmt)){
+			$error_info = $stmt->errorInfo();
+			if(isset($error_info[1]))
+				throw new Exception($error_info[2], $error_info[1]);
+		}
 		$error_info = self::$conn->errorInfo();
-		throw new Exception($error_info[2], $error_info[1]);
+		if(isset($error_info[1]))
+			throw new Exception($error_info[2], $error_info[1]);
 	}
 	
 	
@@ -161,11 +169,11 @@ class DB {
 			
 			// Error ?
 			if($stmt===false)
-				self::_checkError();
+				self::_checkError($stmt);
 			
 			// Execution of the query
 			if(!$stmt->execute($params))
-				self::_checkError();
+				self::_checkError($stmt);
 			
 			if(Config::DEBUG)
 				self::_logQuery($query, microtime(true) - $time);
