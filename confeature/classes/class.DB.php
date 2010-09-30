@@ -440,6 +440,8 @@ class DB_Query {
 			foreach($field as $field_ => $value){
 				if(is_string($field_))
 					$this->set[$field_] = $value;
+				else if(is_int($field_))
+					$this->set[] = $value;
 			}
 		}else if(is_string($field) && isset($value) && (is_int($value) || is_string($value))){
 			$this->set[$field] = $value;
@@ -516,8 +518,12 @@ class DB_Query {
 			throw new Exception('You must use "force" method to update without condition');
 		
 		$set = array();
-		foreach($this->set as $key => $value)
-			$set[] = '`'.$key.'` = '.DB::quote($value);
+		foreach($this->set as $key => $value){
+			if(is_int($key))
+				$set[] = $value;
+			else
+				$set[] = '`'.$key.'` = '.DB::quote($value);
+		}
 		
 		return DB::execute('
 			UPDATE '.$this->table.'
