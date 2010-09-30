@@ -32,7 +32,7 @@ abstract class Model {
 			
 			// Name of the corresponding table, plural
 			$table = $this->entry;
-			if(substr($table, -1)=='y')
+			if(substr($table, -1)=='y' && substr($table, -2)!='ey')
 				$table = substr($table, 0, -1).'ies';
 			else if(substr($table, -1)=='x')
 				$table .= 'es';
