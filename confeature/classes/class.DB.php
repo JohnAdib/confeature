@@ -262,7 +262,9 @@ class DB {
 		
 		$where = array();
 		foreach($conditions as $key => $value){
-			if(is_string($key) && is_string($value)){
+			if(is_string($key) && !isset($value)){
+				$where[] = '`'.$key.'` = NULL';
+			}else if(is_string($key) && is_string($value)){
 				$where[] = '`'.$key.'` = '.self::quote($value);
 			}else if(is_string($key) && is_int($value)){
 				$where[] = '`'.$key.'` = '.$value;
@@ -522,7 +524,7 @@ class DB_Query {
 			if(is_int($key))
 				$set[] = $value;
 			else
-				$set[] = '`'.$key.'` = '.DB::quote($value);
+				$set[] = '`'.$key.'` = '.(isset($value) ? DB::quote($value) : 'NULL');
 		}
 		
 		return DB::execute('
@@ -565,7 +567,7 @@ class DB_Query {
 		$fields = array_keys($this->set);
 		$values = array();
 		foreach($this->set as $value)
-			$values[] = DB::quote($value);
+			$values[] = isset($value) ? DB::quote($value) : 'NULL';
 		
 		DB::execute('
 			'.($replace ? 'REPLACE' : 'INSERT').' INTO '.$this->table.'
