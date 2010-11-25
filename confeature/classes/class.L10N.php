@@ -13,7 +13,7 @@ class L10N {
 	
 	
 	/**
-	 * Loads a language from the cache or from the locales files
+	 * Loads a language from cache or locales files
 	 *
 	 * @param string $languages	Language code (e.g. en_US or fr_FR)
 	 */
@@ -36,13 +36,13 @@ class L10N {
 		try {
 			$vars .= File::read(CF_DIR.'locales/'.$language);
 		}catch(Exception $e){
-			throw new Exception('The L10N file "'.$language.'" for Confeature is not found');
+			throw new Exception('The L10N file "'.$language.'" for Confeature was not found');
 		}
 		$vars .= "\n\n";
 		try {
 			$vars .= File::read(APP_DIR.'locales/'.$language);
 		}catch(Exception $e){
-			throw new Exception('The L10N file "'.$language.'" for the App is not found');
+			throw new Exception('The L10N file "'.$language.'" for the App was not found');
 		}
 		
 		// Extraction of the variables and storage in the class
@@ -81,7 +81,7 @@ class L10N {
 		
 		// Extract variables
 		preg_match_all('/
-			(?<=^|\n)			# Begin of line
+			(?<=^|\n)			# Beginning of line
 			([a-z_][a-z0-9_]*)	# Name of variable
 			[ \t]*
 			(\[[ \t]*([a-z_][a-z0-9_]*)?[ \t]*\])?	# Possibly an array
