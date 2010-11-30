@@ -71,29 +71,61 @@ abstract class RoutesAbstract {
 		// Loading the main Controller
 		$controller = new Layout_Controller();
 		
+		// Call of the method __beforeAction if it exists
+		if(method_exists($controller, '__beforeAction'))
+			$controller->__beforeAction($controller_action, $params);
+		
 		$controller_name = isset($params['controller']) ? $params['controller'] : '';
 		$controller_action = isset($params['action']) ? $params['action'] : '';
 		
 		if($controller_name=='' || !__autoload($controller_name.'_Controller')){
 			$controller_name = 'Page';
 			$controller_action = 'error404';
+			if(!__autoload($controller_name.'_Controller'))
+				throw new Exception('"'.$controller_name.'_Controller" class not found!');
 		}
 		
+		// Loading the sepcific Controller
 		try {
 			$controller_class = $controller_name.'_Controller';
 			$controller->specificController = new $controller_class();
+			
+			if(!method_exists($controller->specificController, $controller_action))
+				throw new Exception('"'.$controller_action.'" method in "'.$controller_name.'_Controller" class not found!');
+			if(method_exists($controller->specificController, '__beforeAction'))
+				$controller->specificController->__beforeAction($controller_action, $params);
+			
 			$controller->specificController->{$controller_action}($params);
 		
+		// If an ActionException is thrown, another controller is called
 		}catch(ActionException $e){
 			$controller_name = $e->getController();
 			$controller_action = $e->getAction();
 			$controller_class = $controller_name.'_Controller';
+			if(!__autoload($controller_name.'_Controller'))
+				throw new Exception('"'.$controller_name.'_Controller" class not found!');
+			
 			$controller->specificController = new $controller_class();
+			
+			if(!method_exists($controller->specificController, $controller_action))
+				throw new Exception('"'.$controller_action.'" method in "'.$controller_name.'_Controller" class not found!');
+			if(method_exists($controller->specificController, '__beforeAction'))
+				$controller->specificController->__beforeAction($controller_action, $params);
+			
 			$controller->specificController->{$controller_action}($e->getParams());
+			
+		// If an Exception is thrown, the "Page" controller is called and the "error" action displays the error
 		}catch(Exception $e){
 			$controller_name = 'Page';
 			$controller_action = 'error';
+			if(!__autoload($controller_name.'_Controller'))
+				throw $e;
+			
 			$controller->specificController = new Page_Controller();
+			
+			if(!method_exists($controller->specificController, $controller_action))
+				throw $e;
+			
 			$controller->specificController->error($e);
 		}
 		
