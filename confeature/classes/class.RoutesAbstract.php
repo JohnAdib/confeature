@@ -71,9 +71,13 @@ abstract class RoutesAbstract {
 		// Loading the main Controller
 		$controller = new Layout_Controller();
 		
+		// Default main Controller's action
+		if(!isset($params['mode']) || !method_exists($controller, $params['mode']))
+			$params['mode'] = 'index';
+		
 		// Call of the method __beforeAction if it exists
 		if(method_exists($controller, '__beforeAction'))
-			$controller->__beforeAction($controller_action, $params);
+			$controller->__beforeAction($params['mode'], $params);
 		
 		$controller_name = isset($params['controller']) ? $params['controller'] : '';
 		$controller_action = isset($params['action']) ? $params['action'] : '';
@@ -129,10 +133,8 @@ abstract class RoutesAbstract {
 			$controller->specificController->error($e);
 		}
 		
-		if(isset($params['mode']) && method_exists($controller, $params['mode']))
-			$controller->{$params['mode']}();
-		else
-			$controller->index();
+		// Call of the main Controller's action
+		$controller->{$params['mode']}();
 		
 		// Rendering the view
 		$controller->render();
