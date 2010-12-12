@@ -1,8 +1,8 @@
 <?php
 define('START_TIME', microtime(true));
 
-/* Cron mode */
-if(defined('CRON_MODE') && CRON_MODE){
+/* CLI mode */
+if(defined('CLI_MODE') && CLI_MODE){
 	set_time_limit(0);
 	$_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 	$_SERVER['HTTP_USER_AGENT'] = '';
