@@ -1,10 +1,2 @@
 *.swp
 *~
-
-/app
-/data
-
-/example_data/tmp/*
-!/example_data/tmp/empty
-/example_data/logs/*
-!/example_data/logs/empty
