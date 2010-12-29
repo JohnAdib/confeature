@@ -164,16 +164,24 @@ class DB {
 			if(Config::DEBUG)
 				$time = microtime(true);
 			
-			// Preparation of the query
-			$stmt = self::$conn->prepare($query);
-			
-			// Error ?
-			if($stmt===false)
-				self::_checkError($stmt);
-			
-			// Execution of the query
-			if(!$stmt->execute($params))
-				self::_checkError($stmt);
+			if(count($params) == 0){
+				// Execution of the query
+				$stmt = self::$conn->query($query);
+				if(!$stmt)
+					self::_checkError($stmt);
+				
+			}else{
+				// Preparation of the query
+				$stmt = self::$conn->prepare($query);
+				
+				// Error ?
+				if($stmt===false)
+					self::_checkError($stmt);
+				
+				// Execution of the query
+				if(!$stmt->execute($params))
+					self::_checkError($stmt);
+			}
 			
 			if(Config::DEBUG)
 				self::_logQuery($query, microtime(true) - $time);
