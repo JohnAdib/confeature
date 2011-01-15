@@ -148,6 +148,7 @@ class DB {
 		$error_info = self::$conn->errorInfo();
 		if(isset($error_info[1]))
 			throw new Exception($error_info[2], $error_info[1]);
+		throw new Exception('Unknown error');
 	}
 	
 	
@@ -167,8 +168,8 @@ class DB {
 			if(count($params) == 0){
 				// Execution of the query
 				$stmt = self::$conn->query($query);
-				if(!$stmt)
-					self::_checkError($stmt);
+				if($stmt===false)
+					self::_checkError();
 				
 			}else{
 				// Preparation of the query
@@ -176,7 +177,7 @@ class DB {
 				
 				// Error ?
 				if($stmt===false)
-					self::_checkError($stmt);
+					self::_checkError();
 				
 				// Execution of the query
 				if(!$stmt->execute($params))
