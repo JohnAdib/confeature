@@ -1,5 +1,5 @@
-README
-======
+CONFEATURE
+===========
 
 What is Confeature ?
 --------------------
