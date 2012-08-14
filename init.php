@@ -106,6 +106,15 @@ ob_start('ob_callback');
 // Time-zone from the configuration
 date_default_timezone_set(Config::TIMEZONE);
 
+
+// Configuration of the DB
+if(isset(Config::$DB))
+	DB::config(Config::$DB);
+
+// Configuration of the cache
+if(isset(Config::$CACHE))
+	Cache::config(Config::$CACHE);
+
 // Language of the app
 if(!defined('LANG'))
 	define('LANG', Config::$LOCALES[0]);
@@ -203,12 +212,3 @@ if(isset($_GET['mobile'])) {
 
 define('MOBILE_BROWSER', $is_mobile);
 define('MOBILE_MODE', $mobile_mode);
-
-
-// Configuration of the DB
-if(isset(Config::$DB))
-	DB::config(Config::$DB);
-
-// Configuration of the cache
-if(isset(Config::$CACHE))
-	Cache::config(Config::$CACHE);
